@@ -36,6 +36,15 @@ jobs:
         
     - name: Build ebook PDF
       run: make clean eb
+
+    - name: Build ebook PDF
+      run: make clean hb
+
+    - name: Build ebook PDF
+      run: make clean 1c
+
+    - name: Build ebook PDF
+      run: make clean a4
         
     - name: Create Release
       id: create_release
@@ -45,6 +54,9 @@ jobs:
         files: |
           perfbook.pdf
           perfbook-eb.pdf
+          perfbook-1c.pdf
+          perfbook-hb.pdf
+          perfbook-a4.pdf
         draft: false
         prerelease: false
         generate_release_notes: true
