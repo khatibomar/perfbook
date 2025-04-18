@@ -37,13 +37,13 @@ jobs:
     - name: Build ebook PDF
       run: make clean eb
 
-    - name: Build ebook PDF
+    - name: Build hard ound PDF
       run: make clean hb
 
-    - name: Build ebook PDF
+    - name: Build one column PDF
       run: make clean 1c
 
-    - name: Build ebook PDF
+    - name: Build A4 PDF
       run: make clean a4
         
     - name: Create Release
@@ -71,3 +71,6 @@ jobs:
         path: |
           perfbook.pdf
           perfbook-eb.pdf
+          perfbook-1c.pdf
+          perfbook-hb.pdf
+          perfbook-a4.pdf
