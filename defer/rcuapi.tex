@@ -121,10 +121,10 @@ which shows the wait-for-readers portions of the RCU, ``sleepable'' RCU
 and by
 \cref{tab:defer:RCU Publish-Subscribe and Version Maintenance APIs},
 which shows the publish-subscribe portions of the
-API~\cite{PaulEMcKenney2019RCUAPI}.\footnote{
-	This citation covers v4.20 and later.
+API~\cite{PaulEMcKenney2024RCUAPI}.\footnote{
+	This citation covers v6.10 and later.
 	Documetation for earlier versions of the Linux-kernel RCU API may
-	be found elsewhere~\cite{PaulEMcKenney2008WhatIsRCUAPI,PaulEMcKenney2014RCUAPI}.}
+	be found elsewhere~\cite{PaulEMcKenney2008WhatIsRCUAPI,PaulEMcKenney2014RCUAPI,PaulEMcKenney2019RCUAPI}.}
 
 \begin{sidewaystable*}[tbp]
 \rowcolors{1}{}{lightgray}
@@ -326,6 +326,34 @@ The \apik{rcu_barrier()} primitive does this job.
 	But even then, be careful, as preemptible RCU will not be guaranteed
 	to wait for that portion of the interrupt handler preceding the
 	\co{rcu_read_lock()} or following the \co{rcu_read_unlock()}.
+}\QuickQuizEndM
+%
+\QuickQuizM{
+	Given that any region of code that disables interrupts acts as
+	an RCU read-side critical section, do atomic operations and
+	single machine instructions also act as tiny RCU read-side
+	critical sections?
+}\QuickQuizAnswerM{
+	Yes, they do.
+
+	But if you are tempted to use this trick, think again, and harder
+	this time.
+
+	And if you have absolutely no alternative to using this trick,
+	then carefully document your use of it.
+	Otherwise, everyone reading the code (yourself included) will
+	hate you for it.
+
+	Why so much hate?
+
+	To see why, keep in mind that the big advantage of Jack
+	Slingwine's and my invention of RCU was that we marked the
+	RCU readers.
+	Take it from all the people who independently invented something
+	kind of like RCU, but failed to mark their read-side critical
+	sections:
+	You really do need to mark your RCU readers!
+	Including your single-instruction RCU readers.
 }\QuickQuizEndM
 %
 \QuickQuizE{
@@ -1018,7 +1046,7 @@ The API members for these linked-list variants are summarized in
 \cref{tab:defer:RCU-Protected List APIs}.
 More information is available in the \path{Documentation/RCU}
 directory of the Linux-kernel source tree and at
-Linux Weekly News~\cite{PaulEMcKenney2019RCUAPI}.
+Linux Weekly News~\cite{PaulEMcKenney2024RCUAPI}.
 
 However, the remainder of this section expands on the use of
 \apik{list_replace_rcu()}, given that this API member gave RCU its name.

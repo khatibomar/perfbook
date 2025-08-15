@@ -5,14 +5,15 @@
  *
  * ./temporal --coe --nthreads 4
  * ./temporal arguments: coe nthread 4 duration: 100
- * 0 881008 0 881080 881008 881080
- * 0 881368 1 881440 241140380 241140400
- * 1 881376 1 881476 241140376 241140396
- * 2 881304 2 881444 881304 881444
- * 2 881720 1 881792 241140368 241140390
- * 3 880652 3 880740 880652 880740
- * 3 881012 2 881080 881012 881080
- * 3 881724 1 882176 241140344 241140364
+ * COE-write 0 1178028 0 1178116 1178028 1178116
+ * 0 1178188 0 1178384 1178188 1178384
+ * COE-write 1 1177608 1 1177692 1177608 1177692
+ * 1 1177976 1 1178064 1178144 1178216
+ * COE-write 2 1178088 2 1178164 1178088 1178164
+ * 2 1178532 2 1178880 1178532 1178880
+ * COE-write 3 1177964 3 1178044 1177964 1178044
+ * 3 1178320 3 1178408 241441564 241441580
+ * COE-final 3
  *
  * The columns are thread number, start time of the first sample, value
  * of shared variable, end time of the first sample, the start time of
@@ -24,6 +25,14 @@
  * The --coe argument also produces lines as follows:
  *
  * COE-write 0 333512 0 333584 333512 333584
+ *
+ * The format is the same as for the fully numeric lines shown above,
+ * except that the third numeric column is the value written instead
+ * of the thread ID, though these two numbers should be identical.
+ * Thess lines time the actual write from the corresponding thread.
+ *
+ * The COE-final line identifies the winning write, that is, the
+ * write whose value persisted to the end of the test.
  *
  * The --fre and --rfe arguments also produce a line as follows:
  *
@@ -105,6 +114,7 @@ void readval(struct sample *sp)
 void collect_data(struct sample_data *sdp)
 {
 	int i = 1;
+	int n = sdp->sd_n;
 	struct sample s;
 	struct sample *sp;
 
@@ -117,13 +127,13 @@ void collect_data(struct sample_data *sdp)
 			sp->tbeforelast = s.tbefore;
 			sp->tafterlast = s.tafter;
 		} else {
-			sdp->sd_nsamples = i + 1;
-			if (++i >= sdp->sd_n)
+			if (++i >= n)
 				break;
 			sp++;
 			*sp = s;
 		}
 	}
+	sdp->sd_nsamples = i;
 }
 
 // Generic child thread, with ->sd_func to invoke.  Or not.
@@ -232,6 +242,7 @@ void coe_parent(void)
 	WRITE_ONCE(goflag, GOFLAG_STOP);
 	wait_all_threads();
 	dump_all_threads(sdp, &ts);
+	printf("COE-final %d\n", sharedvar);
 }
 
 // The fre and rfe parent threads do the writing themselves.
